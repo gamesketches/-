@@ -4,6 +4,23 @@ var game = new Phaser.Game(700, 700, Phaser.AUTO, '', {preload: preload,
 
 var towerGroup;
 
+var diceRoll;
+
+var selectedTower = null;
+
+function selectTower(sprite, pointer) {
+      if(selectedTower != null){
+        sprite.checkers += 1;
+        selectedTower.checkers -= 1;
+        sprite.text.setText(sprite.checkers);
+        selectedTower.text.setText(selectedTower.checkers);
+        selectedTower = null;
+      }
+      else {
+        selectedTower = sprite;
+      }
+}
+
 function preload() {
   game.load.image('wallTexture', 'wallTexture.png');
 }
@@ -15,13 +32,15 @@ function create() {
   {
     var tower = towerGroup.create(i + 50, 350, 'wallTexture');
     tower.checkers = Math.round(Math.random() * 5);
+    tower.inputEnabled = true;
+    tower.events.onInputDown.add(selectTower, this);
   }
   for(var i = 0; i < towerGroup.children.length; i++){
     var tower = towerGroup.children[i];
-    var text = game.add.text(tower.x + 50, 330, "",
+    tower.text = game.add.text(tower.x + 50, 330, "",
                         { font: "20px Arial", fill: "#ffFFFF", align: "center" });
-    text.anchor.setTo(0.5, 0.5);
-    text.setText(tower.checkers);
+    tower.text.anchor.setTo(0.5, 0.5);
+    tower.text.setText(tower.checkers);
   }
 }
 
