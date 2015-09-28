@@ -15,22 +15,36 @@ var player1 = "#ffffff";
 
 var player2 = "#FF0000";
 
+// I feel mad sneaky about this
+var remainingCheckers = {"#ffffff": 0, "#FF0000": 0}
+
+function actionTaken() {
+      // Record an action taken, switch players if currentPlayer has taken 2 actions
+      actionsTaken++;
+      if(actionsTaken >= 2) {
+        currentPlayer = (currentPlayer == player2) ? player1 : player2;
+        actionsTaken = 0;
+      }
+}
+
+function addChecker(sprite){
+  sprite.checkers += 1;
+  sprite.text.setText(sprite.checkers);
+}
+
+function removeChecker(sprite){
+  sprite.checkers -= 1;
+  sprite.text.setText(sprite.checkers);
+}
+
 function selectTower(sprite, pointer) {
       // Move checkers from one tower to another
       if(selectedTower != null && (sprite.checkers <= 1 || sprite.text.fill == selectedTower.text.fill)){
-        sprite.checkers += 1;
-        selectedTower.checkers -= 1;
+        addChecker(sprite);
         sprite.text.fill = selectedTower.text.fill;
-        sprite.text.setText(sprite.checkers);
-        selectedTower.text.setText(selectedTower.checkers);
+        removeChecker(selectedTower);
         selectedTower = null;
-        // Record an action taken, switch players if currentPlayer has taken 2 actions
-        actionsTaken++;
-        if(actionsTaken >= 2) {
-          currentPlayer = (currentPlayer == player2) ? player1 : player2;
-          console.log(currentPlayer);
-          actionsTaken = 0;
-        }
+        actionTaken();
       }
       // Select a tower if it has checkers
       else if(sprite.checkers > 0){
@@ -38,18 +52,23 @@ function selectTower(sprite, pointer) {
         if((towerGroup.children[0] == sprite && currentPlayer == player1) ||
               towerGroup.children[towerGroup.children.length - 1] == sprite && currentPlayer == player2)
         {
-            sprite.checkers -=1;
-            sprite.text.setText(sprite.checkers);
-            actionsTaken++;
-            if(actionsTaken >= 2) {
-              currentPlayer = (currentPlayer == player2) ? player1 : player2;
-              actionsTaken = 0;
-            }
+            //removeChecker(sprite);
+            bearOff(sprite);
+            actionTaken();
         }
         else if(sprite.text.fill == currentPlayer){
         selectedTower = sprite;
         }
       }
+}
+
+function bearOff(sprite){
+    removeChecker(sprite);
+    remainingCheckers[currentPlayer] -= 1;
+    if(remainingCheckers[currentPlayer] == 0)
+    {
+      currentPlayer == player1 ? game.state.start('p1Wins') : game.state.start('p2Wins');
+    }
 }
 
 function preload() {
@@ -71,10 +90,12 @@ function create() {
     if(i < towerGroup.children.length / 2){
     tower.text = game.add.text(tower.x + 50, 330, "",
                         { font: "20px Arial", fill: player1, align: "center" });
+    remainingCheckers["#ffffff"] += tower.checkers;
     }
     else {
       tower.text = game.add.text(tower.x + 50, 330, "",
                           { font: "20px Arial", fill: player2, align: "center" });
+      remainingCheckers["#FF0000"] += tower.checkers;
     }
     tower.text.anchor.setTo(0.5, 0.5);
     tower.text.setText(tower.checkers);
@@ -84,3 +105,26 @@ function create() {
 function update() {
 
 }
+
+game.state.add('p1Wins', {
+      preload: function() {},
+      create: function (){
+              game.add.text(400, 300, 'Player 1 Wins', { fontSize: '32px', fill: '#FFF' });
+              player1.rounds += 1;
+              if(player1.rounds < 2){
+              game.time.events.add(Phaser.Timer.SECOND * 2, function() {game.state.start('fight')}, this);
+              }
+            },
+      update: function() {}
+    });
+game.state.add('p2Wins', {
+  preload: function() {},
+  create: function (){
+          game.add.text(400, 300, 'Player 2 Wins', { fontSize: '32px', fill: '#FFF' });
+          player2.rounds += 1;
+          if(player2.rounds < 2) {
+                game.time.events.add(Phaser.Timer.SECOND * 2, function() { game.state.start('fight')}, this);
+          }
+        },
+  update: function() {}
+});
