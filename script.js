@@ -2,7 +2,7 @@
 var game = new Phaser.Game(700, 700, Phaser.AUTO, '', {preload: preload,
                                               create: create, update: update});
 
-var towerGroup;
+var towerGroup, soldierGroup;
 
 var diceRoll;
 
@@ -49,6 +49,7 @@ function selectTower(sprite, pointer) {
             addChecker(sprite);
             sprite.text.fill = selectedTower.text.fill;
             removeChecker(selectedTower);
+            moveTroop(selectedTower, sprite);
             selectedTower = null;
             actionTaken();
           }
@@ -86,9 +87,7 @@ function selectTower(sprite, pointer) {
       else if(sprite.checkers > 0){
         // If attempting to bear off your troops
         if((towerGroup.children[0] == sprite && currentPlayer == player1) ||
-              towerGroup.children[towerGroup.children.length - 1] == sprite && currentPlayer == player2)
-        {
-            //removeChecker(sprite);
+              towerGroup.children[towerGroup.children.length - 1] == sprite && currentPlayer == player2){
             bearOff(sprite);
             actionTaken();
         }
@@ -107,8 +106,16 @@ function bearOff(sprite){
     }
 }
 
+function moveTroop(startTower, targetTower) {
+  var soldier = soldierGroup.create(startTower.x,
+    startTower.y, 'soldier');
+  soldier.targetX = targetTower.x;
+  soldier.body.velocity.x = (targetTower.x - startTower.x) / 2;
+}
+
 function preload() {
   game.load.image('wallTexture', 'wallTexture.png');
+  game.load.image('soldier', 'soldier.png');
 }
 
 function create() {
@@ -136,10 +143,19 @@ function create() {
     tower.text.anchor.setTo(0.5, 0.5);
     tower.text.setText(tower.checkers);
   }
+
+  soldierGroup = game.add.group();
+  soldierGroup.enableBody = true;
 }
 
 function update() {
-
+  for(var i = 0; i < soldierGroup.children.length; i++){
+    var soldier = soldierGroup.children[i];
+    if((soldier.body.velocity.x > 0 && soldier.targetX < soldier.body.x) ||
+      (soldier.body.velocity.x < 0 && soldier.targetX > soldier.body.x)) {
+      soldier.destroy();
+    }
+  }
 }
 
 game.state.add('p1Wins', {
