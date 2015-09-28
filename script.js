@@ -8,6 +8,8 @@ var diceRoll;
 
 var selectedTower = null;
 
+var jail = {"#ffffff": {checkers: 0}, "#FF0000": {checkers: 0}};
+
 var currentPlayer = "#ffffff";
 var actionsTaken = 0;
 
@@ -33,18 +35,52 @@ function addChecker(sprite){
 }
 
 function removeChecker(sprite){
+  if(sprite.checkers == 0){
+    return;
+  }
   sprite.checkers -= 1;
   sprite.text.setText(sprite.checkers);
 }
 
 function selectTower(sprite, pointer) {
       // Move checkers from one tower to another
-      if(selectedTower != null && (sprite.checkers <= 1 || sprite.text.fill == selectedTower.text.fill)){
-        addChecker(sprite);
-        sprite.text.fill = selectedTower.text.fill;
-        removeChecker(selectedTower);
-        selectedTower = null;
-        actionTaken();
+      if(selectedTower != null){
+        if(sprite.text.fill == selectedTower.text.fill){
+            addChecker(sprite);
+            sprite.text.fill = selectedTower.text.fill;
+            removeChecker(selectedTower);
+            selectedTower = null;
+            actionTaken();
+          }
+        // Capture checkers
+        else if(sprite.checkers <= 1) {
+          removeChecker(sprite);
+          addChecker(sprite);
+          jail[sprite.text.fill].checkers += 1;
+          console.log(jail);
+          sprite.text.fill = currentPlayer;
+          removeChecker(selectedTower);
+          selectedTower = null;
+          actionTaken();
+        }
+      }
+      // If player has jailed checkers
+      else if(jail[currentPlayer].checkers > 0){
+        if(sprite.text.fill == currentPlayer){
+            addChecker(sprite);
+            jail[currentPlayer].checkers -= 1;
+            actionTaken();
+          }
+        // Capture checkers
+        else if(sprite.checkers <= 1) {
+          removeChecker(sprite);
+          addChecker(sprite);
+          jail[sprite.text.fill].checkers += 1;
+          jail[currentPlayer].checkers -= 1;
+          console.log(jail);
+          sprite.text.fill = currentPlayer;
+          actionTaken();
+        }
       }
       // Select a tower if it has checkers
       else if(sprite.checkers > 0){
