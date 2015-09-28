@@ -121,7 +121,7 @@ function preload() {
 function create() {
   towerGroup = game.add.group();
 
-  for(var i = 0; i < 600; i += 130)
+  for(var i = 0; i < 600; i += 100)
   {
     var tower = towerGroup.create(i + 50, 350, 'wallTexture');
     tower.checkers = Math.round(Math.random() * 5);
