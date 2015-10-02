@@ -13,9 +13,14 @@ var jail = {"#ffffff": {checkers: 0}, "#FF0000": {checkers: 0}};
 var currentPlayer = "#ffffff";
 var actionsTaken = 0;
 
+// Remove this later
+var cursors;
+
 var player1 = "#ffffff";
 
 var player2 = "#FF0000";
+
+var wrongSound;
 
 // I feel mad sneaky about this
 var remainingCheckers = {"#ffffff": 0, "#FF0000": 0}
@@ -94,7 +99,13 @@ function selectTower(sprite, pointer) {
         else if(sprite.text.fill == currentPlayer){
         selectedTower = sprite;
         }
+        else {
+          wrongSound.play();
+        }
       }
+    else {
+      wrongSound.play();
+    }
 }
 
 function bearOff(sprite){
@@ -116,12 +127,14 @@ function moveTroop(startTower, targetTower) {
 function preload() {
   game.load.image('wallTexture', 'wallTexture.png');
   game.load.image('soldier', 'soldier.png');
+
+  game.load.audio('wrong', 'wrong.wav');
 }
 
 function create() {
   towerGroup = game.add.group();
 
-  for(var i = 0; i < 600; i += 100)
+  for(var i = 0; i < 2000; i += 150)
   {
     var tower = towerGroup.create(i + 50, 350, 'wallTexture');
     tower.checkers = Math.round(Math.random() * 5);
@@ -130,7 +143,7 @@ function create() {
   }
   for(var i = 0; i < towerGroup.children.length; i++){
     var tower = towerGroup.children[i];
-    if(i < towerGroup.children.length / 2){
+    if(i % 2){
     tower.text = game.add.text(tower.x + 50, 330, "",
                         { font: "20px Arial", fill: player1, align: "center" });
     remainingCheckers["#ffffff"] += tower.checkers;
@@ -146,6 +159,12 @@ function create() {
 
   soldierGroup = game.add.group();
   soldierGroup.enableBody = true;
+
+  cursors = game.input.keyboard.createCursorKeys();
+
+  game.world.setBounds(0, 0, 2000, 2000);
+
+  wrongSound = game.add.audio('wrong');
 }
 
 function update() {
@@ -155,6 +174,13 @@ function update() {
       (soldier.body.velocity.x < 0 && soldier.targetX > soldier.body.x)) {
       soldier.destroy();
     }
+  }
+
+  if(cursors.right.isDown) {
+    game.camera.x += 4;
+  }
+  else if(cursors.left.isDown) {
+    game.camera.x -= 4;
   }
 }
 
