@@ -39,6 +39,7 @@ function actionTaken() {
 function addChecker(sprite){
   sprite.checkers += 1;
   sprite.text.setText(sprite.checkers);
+  drawFlags(sprite);
 }
 
 function removeChecker(sprite){
@@ -47,6 +48,7 @@ function removeChecker(sprite){
   }
   sprite.checkers -= 1;
   sprite.text.setText(sprite.checkers);
+  drawFlags(sprite);
 }
 
 function selectTower(sprite, pointer) {
@@ -126,18 +128,7 @@ function moveTroop(startTower, targetTower) {
   soldier.body.velocity.x = (targetTower.x - startTower.x) / 2;
 }
 
-function preload() {
-  game.load.image('wallTexture', 'wallTexture.png');
-  game.load.image('soldier', 'soldier.png');
-
-  game.load.audio('wrong', 'wrong.wav');
-
-  game.load.image('grass', 'grassTiles.png');
-}
-
-function create() {
-  game.stage.backgroundColor = '#00CCFF';
-
+function makeGrass() {
   var ground = game.add.bitmapData(2000, 32);
   ground.addToWorld(0, game.world.height - 32);
 
@@ -149,30 +140,64 @@ function create() {
     var grassNum = Math.floor(Math.random() * 3);
     ground.copyRect('grass', grassTiles[grassNum], i, 0);
   }
+}
+
+function drawFlags(tower) {
+  if(tower.flagMap) {
+    tower.flagMap.cls();
+    tower.flagMap.update();
+    }
+  tower.flagMap = game.add.bitmapData(16, tower.checkers * 16);
+  tower.flagMap.addToWorld(tower.x + (tower.width / 2), tower.y - (tower.checkers * 16));
+  area = new Phaser.Rectangle(0, 0, 16, 16);
+  flagImage = (tower.text.fill == player1) ? 'whiteFlag' : 'redFlag';
+  for(var i = 0; i < tower.checkers; i++){
+    tower.flagMap.copyRect(flagImage, area, 0, i * 16);
+  }
+
+}
+
+function preload() {
+  game.load.image('wallTexture', 'wallTexture.png');
+  game.load.image('soldier', 'soldier.png');
+
+  game.load.audio('wrong', 'wrong.wav');
+
+  game.load.image('grass', 'grassTiles.png');
+  game.load.image('redFlag', 'redFlag.png');
+  game.load.image('whiteFlag', 'whiteFlag.png');
+}
+
+function create() {
+  game.stage.backgroundColor = '#00CCFF';
+
+  makeGrass();
 
   towerGroup = game.add.group();
 
   for(var i = 0; i < 600; i += 150)
   {
     var tower = towerGroup.create(i + 50, game.world.height - 95, 'wallTexture');
-    tower.checkers = Math.round(Math.random() * 5);
+    tower.checkers = 5;
     tower.inputEnabled = true;
     tower.events.onInputDown.add(selectTower, this);
+    tower.flagMap = null;
   }
   for(var i = 0; i < towerGroup.children.length; i++){
     var tower = towerGroup.children[i];
     if(i % 2){
-    tower.text = game.add.text(tower.x + 50, 330, "",
+    tower.text = game.add.text(tower.x + 50, tower.y - 40, "",
                         { font: "20px Arial", fill: player1, align: "center" });
     remainingCheckers[player1] += tower.checkers;
     }
     else {
-      tower.text = game.add.text(tower.x + 50, 330, "",
+      tower.text = game.add.text(tower.x + 50, tower.y - 40, "",
                           { font: "20px Arial", fill: player2, align: "center" });
       remainingCheckers[player2] += tower.checkers;
     }
     tower.text.anchor.setTo(0.5, 0.5);
     tower.text.setText(tower.checkers);
+    drawFlags(tower);
   }
 
   soldierGroup = game.add.group();
