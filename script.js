@@ -2,7 +2,7 @@
 var game = new Phaser.Game(800, 500, Phaser.AUTO, '', {preload: preload,
                                               create: create, update: update});
 
-var towerGroup, soldierGroup, pointerGroup;
+var towerGroup, soldierGroup;
 
 var diceRoll;
 
@@ -33,7 +33,19 @@ function actionTaken() {
       if(actionsTaken >= 2) {
         currentPlayer = (currentPlayer == player2) ? player1 : player2;
         actionsTaken = 0;
+        switchOnPointers();
       }
+}
+
+function switchOnPointers() {
+    for(var i = 0; i < towerGroup.children.length; i++){
+      if(towerGroup.children[i].text.fill == currentPlayer){
+        towerGroup.children[i].pointer.visible = true;
+      }
+      else {
+        towerGroup.children[i].pointer.visible = false;
+      }
+    }
 }
 
 function addChecker(sprite){
@@ -158,16 +170,16 @@ function drawFlags(tower) {
 }
 
 function preload() {
-  game.load.image('wallTexture', 'wallTexture.png');
-  game.load.image('soldier', 'soldier.png');
+  game.load.image('wallTexture', 'assets/wallTexture.png');
+  game.load.image('soldier', 'assets/soldier.png');
 
-  game.load.audio('wrong', 'wrong.wav');
+  game.load.audio('wrong', 'assets/wrong.wav');
 
-  game.load.image('grass', 'grassTiles.png');
-  game.load.image('redFlag', 'redFlag.png');
-  game.load.image('whiteFlag', 'whiteFlag.png');
-  game.load.spritesheet('whitePointer', 'whitePointerSheet.png', 32, 64);
-  game.load.spritesheet('redPointer', 'redPointerSheet.png', 32, 64);
+  game.load.image('grass', 'assets/grassTiles.png');
+  game.load.image('redFlag', 'assets/redFlag.png');
+  game.load.image('whiteFlag', 'assets/whiteFlag.png');
+  game.load.spritesheet('whitePointer', 'assets/whitePointerSheet.png', 32, 64);
+  game.load.spritesheet('redPointer', 'assets/redPointerSheet.png', 32, 64);
 }
 
 function create() {
@@ -202,14 +214,15 @@ function create() {
     drawFlags(tower);
   }
 
-  pointerGroup = game.add.group();
   for(var i = 0; i < towerGroup.children.length; i++) {
     tower = towerGroup.children[i];
     pointerColor = (tower.text.fill == player1) ? 'whitePointer' : 'redPointer';
-    var pointer = pointerGroup.create(tower.x + 20, tower.y - (70 + (tower.checkers * 16)), pointerColor);
-    pointer.animations.add('go', null, 15, true);
-    pointer.animations.play('go');
+    tower.pointer = game.add.sprite(tower.x + 20, tower.y - (70 + (tower.checkers * 16)), pointerColor);
+    tower.pointer.animations.add('go', null, 15, true);
+    tower.pointer.animations.play('go');
   }
+
+  switchOnPointers();
 
   soldierGroup = game.add.group();
   soldierGroup.enableBody = true;
