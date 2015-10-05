@@ -1,5 +1,5 @@
 
-var game = new Phaser.Game(700, 700, Phaser.AUTO, '', {preload: preload,
+var game = new Phaser.Game(800, 500, Phaser.AUTO, '', {preload: preload,
                                               create: create, update: update});
 
 var towerGroup, soldierGroup;
@@ -21,6 +21,8 @@ var player1 = "#ffffff";
 var player2 = "#FF0000";
 
 var wrongSound;
+
+var grassTiles = [];
 
 // I feel mad sneaky about this
 var remainingCheckers = {"#ffffff": 0, "#FF0000": 0}
@@ -129,14 +131,30 @@ function preload() {
   game.load.image('soldier', 'soldier.png');
 
   game.load.audio('wrong', 'wrong.wav');
+
+  game.load.image('grass', 'grassTiles.png');
 }
 
 function create() {
+  game.stage.backgroundColor = '#00CCFF';
+
+  var ground = game.add.bitmapData(2000, 32);
+  ground.addToWorld(0, game.world.height - 32);
+
+  grassTiles[0] = new Phaser.Rectangle(0, 0, 32, 32);
+  grassTiles[1] = new Phaser.Rectangle(32, 0, 32, 32);
+  grassTiles[2] = new Phaser.Rectangle(0, 32, 32, 32);
+  grassTiles[3] = new Phaser.Rectangle(32, 32, 32, 32);
+  for(var i = 0; i < 2000; i += 32){
+    var grassNum = Math.floor(Math.random() * 3);
+    ground.copyRect('grass', grassTiles[grassNum], i, 0);
+  }
+
   towerGroup = game.add.group();
 
-  for(var i = 0; i < 2000; i += 150)
+  for(var i = 0; i < 600; i += 150)
   {
-    var tower = towerGroup.create(i + 50, 350, 'wallTexture');
+    var tower = towerGroup.create(i + 50, game.world.height - 95, 'wallTexture');
     tower.checkers = Math.round(Math.random() * 5);
     tower.inputEnabled = true;
     tower.events.onInputDown.add(selectTower, this);
@@ -146,12 +164,12 @@ function create() {
     if(i % 2){
     tower.text = game.add.text(tower.x + 50, 330, "",
                         { font: "20px Arial", fill: player1, align: "center" });
-    remainingCheckers["#ffffff"] += tower.checkers;
+    remainingCheckers[player1] += tower.checkers;
     }
     else {
       tower.text = game.add.text(tower.x + 50, 330, "",
                           { font: "20px Arial", fill: player2, align: "center" });
-      remainingCheckers["#FF0000"] += tower.checkers;
+      remainingCheckers[player2] += tower.checkers;
     }
     tower.text.anchor.setTo(0.5, 0.5);
     tower.text.setText(tower.checkers);
@@ -165,6 +183,7 @@ function create() {
   game.world.setBounds(0, 0, 2000, 2000);
 
   wrongSound = game.add.audio('wrong');
+
 }
 
 function update() {
