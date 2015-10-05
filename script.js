@@ -38,14 +38,16 @@ function actionTaken() {
 }
 
 function switchOnPointers() {
-    for(var i = 0; i < towerGroup.children.length; i++){
-      if(towerGroup.children[i].text.fill == currentPlayer){
-        towerGroup.children[i].pointer.visible = true;
-      }
-      else {
-        towerGroup.children[i].pointer.visible = false;
-      }
-    }
+    towerGroup.forEach(
+        function(child) {
+          if(child.text.fill == currentPlayer){
+            child.pointer.visible = true;
+          }
+          else {
+            child.pointer.visible = false;
+          }
+        },
+                    this, true);
 }
 
 function addChecker(sprite){
@@ -214,13 +216,12 @@ function create() {
     drawFlags(tower);
   }
 
-  for(var i = 0; i < towerGroup.children.length; i++) {
-    tower = towerGroup.children[i];
-    pointerColor = (tower.text.fill == player1) ? 'whitePointer' : 'redPointer';
-    tower.pointer = game.add.sprite(tower.x + 20, tower.y - (70 + (tower.checkers * 16)), pointerColor);
-    tower.pointer.animations.add('go', null, 15, true);
-    tower.pointer.animations.play('go');
-  }
+  towerGroup.forEach(function(child) {
+    pointerColor = (child.text.fill == player1) ? 'whitePointer' : 'redPointer';
+    child.pointer = game.add.sprite(child.x + 20, child.y - (70 + (child.checkers * 16)), pointerColor);
+    child.pointer.animations.add('go', null, 15, true);
+    child.pointer.animations.play('go');
+  }, this, true);
 
   switchOnPointers();
 
@@ -236,13 +237,13 @@ function create() {
 }
 
 function update() {
-  for(var i = 0; i < soldierGroup.children.length; i++){
-    var soldier = soldierGroup.children[i];
-    if((soldier.body.velocity.x > 0 && soldier.targetX < soldier.body.x) ||
-      (soldier.body.velocity.x < 0 && soldier.targetX > soldier.body.x)) {
-      soldier.destroy();
-    }
-  }
+  soldierGroup.forEach(
+    function(child){
+      if((child.body.velocity.x > 0 && child.targetX < child.body.x) ||
+        (child.body.velocity.x < 0 && child.targetX > child.body.x)) {
+        child.destroy();}}
+                        , this, true);
+
 
   if(cursors.right.isDown) {
     game.camera.x += 4;
