@@ -137,7 +137,9 @@ function bearOff(sprite){
 
 function moveTroop(startTower, targetTower) {
   var soldier = soldierGroup.create(startTower.x,
-    startTower.y, 'soldier');
+    startTower.y + 64, 'soldier');
+  soldier.animations.add('run', null, 15, true);
+  soldier.animations.play('run');
   soldier.targetX = targetTower.x;
   soldier.body.velocity.x = (targetTower.x - startTower.x) / 2;
 }
@@ -173,7 +175,7 @@ function drawFlags(tower) {
 
 function preload() {
   game.load.image('wallTexture', 'assets/wallTexture.png');
-  game.load.image('soldier', 'assets/soldier.png');
+  game.load.spritesheet('soldier', 'assets/runningSoldier.png', 13, 21);
 
   game.load.audio('wrong', 'assets/wrong.wav');
 
@@ -191,7 +193,7 @@ function create() {
 
   towerGroup = game.add.group();
 
-  for(var i = 0; i < 600; i += 150)
+  for(var i = 0; i < 1500; i += 150)
   {
     var tower = towerGroup.create(i + 50, game.world.height - 95, 'wallTexture');
     tower.checkers = 5;
