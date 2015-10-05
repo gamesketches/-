@@ -2,7 +2,7 @@
 var game = new Phaser.Game(800, 500, Phaser.AUTO, '', {preload: preload,
                                               create: create, update: update});
 
-var towerGroup, soldierGroup;
+var towerGroup, soldierGroup, pointerGroup;
 
 var diceRoll;
 
@@ -166,6 +166,8 @@ function preload() {
   game.load.image('grass', 'grassTiles.png');
   game.load.image('redFlag', 'redFlag.png');
   game.load.image('whiteFlag', 'whiteFlag.png');
+  game.load.spritesheet('whitePointer', 'whitePointerSheet.png', 32, 64);
+  game.load.spritesheet('redPointer', 'redPointerSheet.png', 32, 64);
 }
 
 function create() {
@@ -198,6 +200,15 @@ function create() {
     tower.text.anchor.setTo(0.5, 0.5);
     tower.text.setText(tower.checkers);
     drawFlags(tower);
+  }
+
+  pointerGroup = game.add.group();
+  for(var i = 0; i < towerGroup.children.length; i++) {
+    tower = towerGroup.children[i];
+    pointerColor = (tower.text.fill == player1) ? 'whitePointer' : 'redPointer';
+    var pointer = pointerGroup.create(tower.x + 20, tower.y - (70 + (tower.checkers * 16)), pointerColor);
+    pointer.animations.add('go', null, 15, true);
+    pointer.animations.play('go');
   }
 
   soldierGroup = game.add.group();
