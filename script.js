@@ -20,9 +20,9 @@ var player1 = "#ffffff";
 
 var player2 = "#FF0000";
 
-var wrongSound;
+var flavorText, turnNumber;
 
-var grassTiles = [];
+var wrongSound;
 
 // I feel mad sneaky about this
 var remainingCheckers = {"#ffffff": 0, "#FF0000": 0}
@@ -34,6 +34,9 @@ function actionTaken() {
         currentPlayer = (currentPlayer == player2) ? player1 : player2;
         actionsTaken = 0;
         switchOnPointers();
+        turnNumber += 1;
+        playerColor = (currentPlayer == player2) ? 'Red' : 'White';
+        flavorText.setText("Day " + turnNumber + ", " + playerColor + " moves out");
       }
 }
 
@@ -145,6 +148,7 @@ function moveTroop(startTower, targetTower) {
 }
 
 function makeGrass() {
+  var grassTiles = [];
   var ground = game.add.bitmapData(2000, 32);
   ground.addToWorld(0, game.world.height - 32);
 
@@ -155,6 +159,35 @@ function makeGrass() {
   for(var i = 0; i < 2000; i += 32){
     var grassNum = Math.floor(Math.random() * 3);
     ground.copyRect('grass', grassTiles[grassNum], i, 0);
+  }
+}
+
+function makeTowers() {
+  towerGroup = game.add.group();
+
+  for(var i = 0; i < 1500; i += 150)
+  {
+    var tower = towerGroup.create(i + 50, game.world.height - 95, 'wallTexture');
+    tower.checkers = 5;
+    tower.inputEnabled = true;
+    tower.events.onInputDown.add(selectTower, this);
+    tower.flagMap = null;
+  }
+  for(var i = 0; i < towerGroup.children.length; i++){
+    var tower = towerGroup.children[i];
+    if(i % 2){
+    tower.text = game.add.text(tower.x + 50, tower.y - 40, "",
+                        { font: "20px Arial", fill: player1, align: "center" });
+    remainingCheckers[player1] += tower.checkers;
+    }
+    else {
+      tower.text = game.add.text(tower.x + 50, tower.y - 40, "",
+                          { font: "20px Arial", fill: player2, align: "center" });
+      remainingCheckers[player2] += tower.checkers;
+    }
+    tower.text.anchor.setTo(0.5, 0.5);
+    tower.text.setText(tower.checkers);
+    drawFlags(tower);
   }
 }
 
@@ -191,32 +224,7 @@ function create() {
 
   makeGrass();
 
-  towerGroup = game.add.group();
-
-  for(var i = 0; i < 1500; i += 150)
-  {
-    var tower = towerGroup.create(i + 50, game.world.height - 95, 'wallTexture');
-    tower.checkers = 5;
-    tower.inputEnabled = true;
-    tower.events.onInputDown.add(selectTower, this);
-    tower.flagMap = null;
-  }
-  for(var i = 0; i < towerGroup.children.length; i++){
-    var tower = towerGroup.children[i];
-    if(i % 2){
-    tower.text = game.add.text(tower.x + 50, tower.y - 40, "",
-                        { font: "20px Arial", fill: player1, align: "center" });
-    remainingCheckers[player1] += tower.checkers;
-    }
-    else {
-      tower.text = game.add.text(tower.x + 50, tower.y - 40, "",
-                          { font: "20px Arial", fill: player2, align: "center" });
-      remainingCheckers[player2] += tower.checkers;
-    }
-    tower.text.anchor.setTo(0.5, 0.5);
-    tower.text.setText(tower.checkers);
-    drawFlags(tower);
-  }
+  makeTowers();
 
   towerGroup.forEach(function(child) {
     pointerColor = (child.text.fill == player1) ? 'whitePointer' : 'redPointer';
@@ -233,6 +241,11 @@ function create() {
   cursors = game.input.keyboard.createCursorKeys();
 
   game.world.setBounds(0, 0, 2000, 2000);
+
+  turnNumber = 1;
+
+  flavorText = game.add.text(350, 150, "Day " + turnNumber + ", White moves out",
+                      { font: "20px Arial", fill: player1, align: "center" });
 
   wrongSound = game.add.audio('wrong');
 
