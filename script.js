@@ -30,6 +30,7 @@ var remainingCheckers = {"#ffffff": 0, "#FF0000": 0}
 function actionTaken() {
       // Record an action taken, switch players if currentPlayer has taken 2 actions
       actionsTaken++;
+      toggleIcons(false);
       if(actionsTaken >= 2) {
         currentPlayer = (currentPlayer == player2) ? player1 : player2;
         actionsTaken = 0;
@@ -37,6 +38,7 @@ function actionTaken() {
         playerColor = (currentPlayer == player2) ? 'Red' : 'White';
         flavorText.setText("Day " + turnNumber + ", " + playerColor + " moves out");
       }
+
       switchOnPointers();
 }
 
@@ -51,6 +53,17 @@ function switchOnPointers() {
           }
         },
                     this, true);
+
+}
+
+function toggleIcons(status) {
+  towerGroup.forEach(
+    function(child) {
+      if(child != selectedTower && child.text.fill == currentPlayer) {
+        child.icon.visible = status;
+      }
+    },
+      this, true);
 }
 
 function selectTowerPointer() {
@@ -61,6 +74,9 @@ function selectTowerPointer() {
       }
     },
   this, true);
+
+  toggleIcons(true);
+
 }
 
 function addChecker(sprite){
@@ -222,6 +238,7 @@ function drawFlags(tower) {
 function preload() {
   game.load.image('wallTexture', 'assets/wallTexture.png');
   game.load.spritesheet('soldier', 'assets/runningSoldier.png', 13, 21);
+  game.load.image('addSoldierIcon', 'assets/addSoldierIcon.png');
 
   game.load.audio('wrong', 'assets/wrong.wav');
 
@@ -244,6 +261,8 @@ function create() {
     child.pointer = game.add.sprite(child.x + 20, child.y - (70 + (child.checkers * 16)), pointerColor);
     child.pointer.animations.add('go', null, 15, true);
     child.pointer.animations.play('go');
+    child.icon = game.add.sprite(child.x + 20, child.y - (50 + (child.checkers * 16)), 'addSoldierIcon');
+    child.icon.visible = false;
   }, this, true);
 
   switchOnPointers();
