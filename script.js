@@ -33,11 +33,11 @@ function actionTaken() {
       if(actionsTaken >= 2) {
         currentPlayer = (currentPlayer == player2) ? player1 : player2;
         actionsTaken = 0;
-        switchOnPointers();
         turnNumber += 1;
         playerColor = (currentPlayer == player2) ? 'Red' : 'White';
         flavorText.setText("Day " + turnNumber + ", " + playerColor + " moves out");
       }
+      switchOnPointers();
 }
 
 function switchOnPointers() {
@@ -51,6 +51,16 @@ function switchOnPointers() {
           }
         },
                     this, true);
+}
+
+function selectTowerPointer() {
+  towerGroup.forEach(
+    function(child) {
+      if(child != selectedTower) {
+        child.pointer.visible = false;
+      }
+    },
+  this, true);
 }
 
 function addChecker(sprite){
@@ -119,6 +129,7 @@ function selectTower(sprite, pointer) {
         }
         else if(sprite.text.fill == currentPlayer){
         selectedTower = sprite;
+        selectTowerPointer();
         }
         else {
           wrongSound.play();
@@ -157,7 +168,9 @@ function makeGrass() {
   grassTiles[2] = new Phaser.Rectangle(0, 32, 32, 32);
   grassTiles[3] = new Phaser.Rectangle(32, 32, 32, 32);
   for(var i = 0; i < 2000; i += 32){
-    var grassNum = Math.floor(Math.random() * 3);
+    var grassNum = Math.floor(Math.random() * 6);
+    if(grassNum >= 4)
+        grassNum = 3;
     ground.copyRect('grass', grassTiles[grassNum], i, 0);
   }
 }
@@ -266,6 +279,7 @@ function update() {
   else if(cursors.left.isDown) {
     game.camera.x -= 4;
   }
+  flavorText.x = game.camera.x + 350;
 }
 
 game.state.add('p1Wins', {
