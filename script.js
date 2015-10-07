@@ -60,6 +60,11 @@ function toggleIcons(status) {
   towerGroup.forEach(
     function(child) {
       if(child != selectedTower && child.text.fill == currentPlayer) {
+        child.icon.loadTexture('addSoldierIcon');
+        child.icon.visible = status;
+      }
+      if(child.text.fill != currentPlayer && child.checkers <= 1) {
+        child.icon.loadTexture('conquerIcon');
         child.icon.visible = status;
       }
     },
@@ -239,6 +244,7 @@ function preload() {
   game.load.image('wallTexture', 'assets/wallTexture.png');
   game.load.spritesheet('soldier', 'assets/runningSoldier.png', 13, 21);
   game.load.image('addSoldierIcon', 'assets/addSoldierIcon.png');
+  game.load.image('conquerIcon', 'assets/conquerIcon.png');
 
   game.load.audio('wrong', 'assets/wrong.wav');
 
