@@ -86,7 +86,7 @@ function selectTowerPointer() {
 
 function addChecker(sprite){
   sprite.checkers += 1;
-  sprite.text.setText(sprite.checkers);
+  //sprite.text.setText(sprite.checkers);
   drawFlags(sprite);
 }
 
@@ -95,7 +95,7 @@ function removeChecker(sprite){
     return;
   }
   sprite.checkers -= 1;
-  sprite.text.setText(sprite.checkers);
+  //sprite.text.setText(sprite.checkers);
   drawFlags(sprite);
 }
 
@@ -181,14 +181,14 @@ function moveTroop(startTower, targetTower) {
 
 function makeGrass() {
   var grassTiles = [];
-  var ground = game.add.bitmapData(2000, 32);
+  var ground = game.add.bitmapData(1600, 32);
   ground.addToWorld(0, game.world.height - 32);
 
   grassTiles[0] = new Phaser.Rectangle(0, 0, 32, 32);
   grassTiles[1] = new Phaser.Rectangle(32, 0, 32, 32);
   grassTiles[2] = new Phaser.Rectangle(0, 32, 32, 32);
   grassTiles[3] = new Phaser.Rectangle(32, 32, 32, 32);
-  for(var i = 0; i < 2000; i += 32){
+  for(var i = 0; i < 1600; i += 32){
     var grassNum = Math.floor(Math.random() * 6);
     if(grassNum >= 4)
         grassNum = 3;
@@ -220,7 +220,7 @@ function makeTowers() {
       remainingCheckers[player2] += tower.checkers;
     }
     tower.text.anchor.setTo(0.5, 0.5);
-    tower.text.setText(tower.checkers);
+    //tower.text.setText(tower.checkers);
     drawFlags(tower);
   }
 }
@@ -278,7 +278,7 @@ function create() {
 
   cursors = game.input.keyboard.createCursorKeys();
 
-  game.world.setBounds(0, 0, 2000, 2000);
+  game.world.setBounds(0, 0, 1600, 1600);
 
   turnNumber = 1;
 
@@ -299,10 +299,10 @@ function update() {
 
 
   if(cursors.right.isDown) {
-    game.camera.x += 4;
+    game.camera.x += 10;
   }
   else if(cursors.left.isDown) {
-    game.camera.x -= 4;
+    game.camera.x -= 10;
   }
   flavorText.x = game.camera.x + 350;
 }
