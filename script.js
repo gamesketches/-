@@ -39,6 +39,16 @@ function actionTaken() {
         turnNumber += 1;
         playerColor = (currentPlayer == player2) ? 'Red' : 'White';
         flavorText.setText("Day " + turnNumber + ", " + playerColor + " moves out");
+        towerGroup.forEach(function(child){
+          checkers = child.checkers;
+          for(var i = 0; i < checkers.length; i++){
+            checkers[i] -= 1;
+            if(checkers[i] < 0) {
+              checkers[i] = 0;
+            }
+          }
+        });
+        updateSideBar();
       }
 
       switchOnPointers();
@@ -86,64 +96,40 @@ function selectTowerPointer() {
 
 }
 
-function addChecker(sprite){
-  sprite.checkers += 1;
+function addChecker(sprite, hungerVal){
+  sprite.checkers.push(hungerVal);
   //sprite.text.setText(sprite.checkers);
   drawFlags(sprite);
 }
 
 function removeChecker(sprite){
-  if(sprite.checkers == 0){
+  if(sprite.checkers.length == 0){
     return;
   }
-  sprite.checkers -= 1;
+  sprite.checkers.pop();
   //sprite.text.setText(sprite.checkers);
   drawFlags(sprite);
+}
+
+function transferChecker(giver, receiver) {
+  receiver.checkers.push(giver.checkers.pop());
 }
 
 function selectTower(sprite, pointer) {
       // Move checkers from one tower to another
       if(selectedTower != null){
         if(sprite.text.fill == selectedTower.text.fill){
-            addChecker(sprite);
+            //addChecker(sprite);
+            transferChecker(selectedTower, sprite);
             sprite.text.fill = selectedTower.text.fill;
-            removeChecker(selectedTower);
+            //removeChecker(selectedTower);
             moveTroop(selectedTower, sprite);
             selectedTower = null;
             actionTaken();
           }
-        // Capture checkers
-        else if(sprite.checkers <= 1) {
-          removeChecker(sprite);
-          addChecker(sprite);
-          jail[sprite.text.fill].checkers += 1;
-          console.log(jail);
-          sprite.text.fill = currentPlayer;
-          removeChecker(selectedTower);
-          selectedTower = null;
-          actionTaken();
-        }
-      }
-      // If player has jailed checkers
-      else if(jail[currentPlayer].checkers > 0){
-        if(sprite.text.fill == currentPlayer){
-            addChecker(sprite);
-            jail[currentPlayer].checkers -= 1;
-            actionTaken();
-          }
-        // Capture checkers
-        else if(sprite.checkers <= 1) {
-          removeChecker(sprite);
-          addChecker(sprite);
-          jail[sprite.text.fill].checkers += 1;
-          jail[currentPlayer].checkers -= 1;
-          console.log(jail);
-          sprite.text.fill = currentPlayer;
-          actionTaken();
-        }
       }
       // Select a tower if it has checkers
-      else if(sprite.checkers > 0){
+      else if(sprite.checkers.length > 0){
         // If attempting to bear off your troops
         if((towerGroup.children[0] == sprite && currentPlayer == player1) ||
               towerGroup.children[towerGroup.children.length - 1] == sprite && currentPlayer == player2){
@@ -214,14 +200,15 @@ function makeSideBar() {
 function updateSideBar(){
   if(selectedTower) {
     var area = new Phaser.Rectangle(0, 0, 13, 21);
-    for(var i = 0; i < selectedTower.checkers; i++){
+    for(var i = 0; i < selectedTower.checkers.length; i++){
       sideBar.copyRect('standingSoldier', area, 20, i * 25);
-      sideBar.rect(40, i * 25, /*selectTower.checkers[i].hunger*/ 50, 21, "#FF99FF");
+      sideBar.rect(40, i * 25, selectedTower.checkers[i] * 10, 21, "#FF99FF");
     }
   }
   else {
     sideBar.cls();
     sideBar.update();
+    sideBar.fill(0, 0, 0);
   }
 }
 
@@ -231,7 +218,8 @@ function makeTowers() {
   for(var i = 0; i < 1500; i += 150)
   {
     var tower = towerGroup.create(i + 50, game.world.height - 95, 'wallTexture');
-    tower.checkers = 5;
+    tower.checkers = [10, 10, 10, 10, 10];
+    console.log(tower.checkers.length);
     tower.inputEnabled = true;
     tower.events.onInputDown.add(selectTower, this);
     tower.flagMap = null;
@@ -241,12 +229,12 @@ function makeTowers() {
     if(i % 2){
     tower.text = game.add.text(tower.x + 50, tower.y - 40, "",
                         { font: "20px Arial", fill: player1, align: "center" });
-    remainingCheckers[player1] += tower.checkers;
+    remainingCheckers[player1] += tower.checkers.length;
     }
     else {
       tower.text = game.add.text(tower.x + 50, tower.y - 40, "",
                           { font: "20px Arial", fill: player2, align: "center" });
-      remainingCheckers[player2] += tower.checkers;
+      remainingCheckers[player2] += tower.checkers.length;
     }
     tower.text.anchor.setTo(0.5, 0.5);
     //tower.text.setText(tower.checkers);
@@ -259,11 +247,11 @@ function drawFlags(tower) {
     tower.flagMap.cls();
     tower.flagMap.update();
     }
-  tower.flagMap = game.add.bitmapData(16, tower.checkers * 16);
-  tower.flagMap.addToWorld(tower.x + (tower.width / 2), tower.y - (tower.checkers * 16));
+  tower.flagMap = game.add.bitmapData(16, tower.checkers.length * 16);
+  tower.flagMap.addToWorld(tower.x + (tower.width / 2), tower.y - (tower.checkers.length * 16));
   area = new Phaser.Rectangle(0, 0, 16, 16);
   flagImage = (tower.text.fill == player1) ? 'whiteFlag' : 'redFlag';
-  for(var i = 0; i < tower.checkers; i++){
+  for(var i = 0; i < tower.checkers.length; i++){
     tower.flagMap.copyRect(flagImage, area, 0, i * 16);
   }
 
@@ -295,10 +283,10 @@ function create() {
 
   towerGroup.forEach(function(child) {
     pointerColor = (child.text.fill == player1) ? 'whitePointer' : 'redPointer';
-    child.pointer = game.add.sprite(child.x + 20, child.y - (70 + (child.checkers * 16)), pointerColor);
+    child.pointer = game.add.sprite(child.x + 20, child.y - (70 + (child.checkers.length * 16)), pointerColor);
     child.pointer.animations.add('go', null, 15, true);
     child.pointer.animations.play('go');
-    child.icon = game.add.sprite(child.x + 20, child.y - (50 + (child.checkers * 16)), 'addSoldierIcon');
+    child.icon = game.add.sprite(child.x + 20, child.y - (50 + (child.checkers.length * 16)), 'addSoldierIcon');
     child.icon.visible = false;
   }, this, true);
 
