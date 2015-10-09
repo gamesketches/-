@@ -22,6 +22,8 @@ var player2 = "#FF0000";
 
 var flavorText, turnNumber;
 
+var sideBar;
+
 var wrongSound;
 
 // I feel mad sneaky about this
@@ -151,6 +153,7 @@ function selectTower(sprite, pointer) {
         else if(sprite.text.fill == currentPlayer){
         selectedTower = sprite;
         selectTowerPointer();
+        updateSideBar();
         }
         else {
           wrongSound.play();
@@ -193,6 +196,26 @@ function makeGrass() {
     if(grassNum >= 4)
         grassNum = 3;
     ground.copyRect('grass', grassTiles[grassNum], i, 0);
+  }
+}
+
+function makeSideBar() {
+  sideBar = game.add.bitmapData(200, game.world.height);
+  sideBar.addToWorld(game.world.width - 200, 0);
+
+  sideBar.fill(0, 0, 0);
+}
+
+function updateSideBar(){
+  if(selectedTower) {
+    var area = new Phaser.Rectangle(0, 0, 13, 21);
+    for(var i = 0; i < selectedTower.checkers; i++){
+      sideBar.copyRect('standingSoldier', area, 20, i * 25);
+    }
+  }
+  else {
+    sideBar.cls();
+    sideBar.update();
   }
 }
 
@@ -241,6 +264,7 @@ function drawFlags(tower) {
 }
 
 function preload() {
+  game.load.image('standingSoldier', 'assets/soldier.png');
   game.load.image('wallTexture', 'assets/wallTexture.png');
   game.load.spritesheet('soldier', 'assets/runningSoldier.png', 13, 21);
   game.load.image('addSoldierIcon', 'assets/addSoldierIcon.png');
@@ -286,6 +310,8 @@ function create() {
                       { font: "20px Arial", fill: player1, align: "center" });
 
   wrongSound = game.add.audio('wrong');
+
+  makeSideBar();
 
 }
 
