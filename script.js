@@ -211,6 +211,7 @@ function updateSideBar(){
     var area = new Phaser.Rectangle(0, 0, 13, 21);
     for(var i = 0; i < selectedTower.checkers; i++){
       sideBar.copyRect('standingSoldier', area, 20, i * 25);
+      sideBar.rect(40, i * 25, /*selectTower.checkers[i].hunger*/ 50, 21, "#FF99FF");
     }
   }
   else {
