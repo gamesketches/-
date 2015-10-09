@@ -22,7 +22,7 @@ var player2 = "#FF0000";
 
 var flavorText, turnNumber;
 
-var sideBar;
+var sideBar, speechBubble;
 
 var wrongSound;
 
@@ -204,6 +204,11 @@ function makeSideBar() {
   sideBar.addToWorld(game.world.width - 200, 0);
 
   sideBar.fill(0, 0, 0);
+
+  speechBubble = game.add.sprite(game.world.width - 150, 400, 'speechBubble');
+  speechBubble.textContent = game.add.text(speechBubble.x + 10, speechBubble.y + 40, "Select a Tower",
+                                              { font: "10px Arial", fill: "black", align: "center" });
+  speechBubble.buddy = game.add.sprite(speechBubble.x, speechBubble.y - 10, "standingSoldier");
 }
 
 function updateSideBar(){
@@ -266,6 +271,7 @@ function drawFlags(tower) {
 
 function preload() {
   game.load.image('standingSoldier', 'assets/soldier.png');
+  game.load.image('speechBubble', 'assets/speechBubble.png');
   game.load.image('wallTexture', 'assets/wallTexture.png');
   game.load.spritesheet('soldier', 'assets/runningSoldier.png', 13, 21);
   game.load.image('addSoldierIcon', 'assets/addSoldierIcon.png');
