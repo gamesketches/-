@@ -4,18 +4,11 @@ var game = new Phaser.Game(800, 500, Phaser.AUTO, '', {preload: preload,
 
 var towerGroup, soldierGroup;
 
-var diceRoll;
-
 var selectedTower = null;
 var cursorPos = 1;
 
-var jail = {"#ffffff": {checkers: 0}, "#FF0000": {checkers: 0}};
-
 var currentPlayer = "#ffffff";
 var actionsTaken = 0;
-
-// Remove this later
-var cursors;
 
 var player1 = "#ffffff";
 
@@ -84,19 +77,6 @@ function toggleIcons(status) {
       }
     },
       this, true);
-}
-
-function selectTowerPointer() {
-  towerGroup.forEach(
-    function(child) {
-      if(child != selectedTower) {
-        child.pointer.visible = false;
-      }
-    },
-  this, true);
-
-  toggleIcons(true);
-
 }
 
 function addChecker(sprite, hungerVal){
@@ -221,8 +201,6 @@ function makeTowers() {
   {
     var tower = towerGroup.create(i + 20, game.world.height - 95, 'wallTexture');
     tower.checkers = [10, 10, 10, 10, 10];
-    tower.inputEnabled = true;
-    tower.events.onInputDown.add(selectTower, this);
     tower.flagMap = null;
   }
   for(var i = 0; i < towerGroup.children.length; i++){
@@ -238,7 +216,6 @@ function makeTowers() {
       remainingCheckers[player2] += tower.checkers.length;
     }
     tower.text.anchor.setTo(0.5, 0.5);
-    //tower.text.setText(tower.checkers);
     drawFlags(tower);
   }
 }
@@ -312,7 +289,7 @@ function create() {
                 selectTower(towerGroup.children[cursorPos], null);
   }, this, true);
 
-  game.world.setBounds(0, 0, 800, 800);
+  game.world.setBounds(0, 0, 800, 500);
 
   turnNumber = 1;
 
