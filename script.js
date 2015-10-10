@@ -68,11 +68,11 @@ function switchOnPointers() {
 function toggleIcons(status) {
   towerGroup.forEach(
     function(child) {
-      if(child != selectedTower && child.text.fill == currentPlayer) {
+      if(child != selectedTower && child.owner == currentPlayer) {
         child.icon.loadTexture('addSoldierIcon');
         child.icon.visible = status;
       }
-      if(child.text.fill != currentPlayer && child.checkers <= 1) {
+      if(child.owner != currentPlayer && child.checkers <= 1) {
         child.icon.loadTexture('conquerIcon');
         child.icon.visible = status;
       }
@@ -102,9 +102,9 @@ function transferChecker(giver, receiver) {
 function selectTower(sprite, pointer) {
       // Move checkers from one tower to another
       if(selectedTower != null){
-        if(sprite.text.fill == selectedTower.text.fill){
+        if(sprite.owner == selectedTower.owner){
             transferChecker(selectedTower, sprite);
-            sprite.text.fill = selectedTower.text.fill;
+            sprite.owner = selectedTower.owner;
             moveTroop(selectedTower, sprite, 0);
             selectedTower.pointer.animations.play('go');
             selectedTower = null;
@@ -119,7 +119,7 @@ function selectTower(sprite, pointer) {
             bearOff(sprite);
             actionTaken();
         }
-        else if(sprite.text.fill == currentPlayer){
+        else if(sprite.owner == currentPlayer){
         selectedTower = sprite;
         updateSideBar();
         selectedTower.pointer.animations.stop(null, true);
@@ -192,7 +192,7 @@ function resolveTowerAttack(startTower, targetTower) {
 
   if(attackSum > defenseSum) {
     targetTower.checkers = startTower.checkers;
-    targetTower.text.fill = startTower.text.fill;
+    targetTower.owner = startTower.owner;
   }
   startTower.checkers = [];
   drawFlags(startTower);
@@ -255,16 +255,13 @@ function makeTowers() {
   for(var i = 0; i < towerGroup.children.length; i++){
     var tower = towerGroup.children[i];
     if(i % 2){
-    tower.text = game.add.text(tower.x + 50, tower.y - 40, "",
-                        { font: "20px Arial", fill: player1, align: "center" });
+    tower.owner = player1;
     remainingCheckers[player1] += tower.checkers.length;
     }
     else {
-      tower.text = game.add.text(tower.x + 50, tower.y - 40, "",
-                          { font: "20px Arial", fill: player2, align: "center" });
+      tower.owner = player2;
       remainingCheckers[player2] += tower.checkers.length;
     }
-    tower.text.anchor.setTo(0.5, 0.5);
     drawFlags(tower);
   }
 }
@@ -277,7 +274,7 @@ function drawFlags(tower) {
   tower.flagMap = game.add.bitmapData(16, tower.checkers.length * 16);
   tower.flagMap.addToWorld(tower.x + (tower.width / 2), tower.y - (tower.checkers.length * 16));
   area = new Phaser.Rectangle(0, 0, 16, 16);
-  flagImage = (tower.text.fill == player1) ? 'whiteFlag' : 'redFlag';
+  flagImage = (tower.owner == player1) ? 'whiteFlag' : 'redFlag';
   for(var i = 0; i < tower.checkers.length; i++){
     tower.flagMap.copyRect(flagImage, area, 0, i * 16);
   }
@@ -309,7 +306,7 @@ function create() {
   makeTowers();
 
   towerGroup.forEach(function(child) {
-    pointerColor = (child.text.fill == player1) ? 'whitePointer' : 'redPointer';
+    pointerColor = (child.owner == player1) ? 'whitePointer' : 'redPointer';
     child.pointer = game.add.sprite(child.x + 20, child.y - (70 + (child.checkers.length * 16)), pointerColor);
     child.pointer.animations.add('go', null, 15, true);
     child.pointer.animations.play('go');
