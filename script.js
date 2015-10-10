@@ -195,6 +195,8 @@ function resolveTowerAttack(startTower, targetTower) {
     targetTower.text.fill = startTower.text.fill;
   }
   startTower.checkers = [];
+  drawFlags(startTower);
+  drawFlags(targetTower);
 }
 
 function makeGrass() {
