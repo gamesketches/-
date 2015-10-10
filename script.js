@@ -67,6 +67,8 @@ function switchOnPointers() {
       child.pointer.visible = false;
     }, this, true);
     towerGroup.children[cursorPos].pointer.visible = true;
+    if(selectedTower)
+      selectedTower.pointer.visible = true;
 }
 
 function toggleIcons(status) {
@@ -120,11 +122,10 @@ function selectTower(sprite, pointer) {
       // Move checkers from one tower to another
       if(selectedTower != null){
         if(sprite.text.fill == selectedTower.text.fill){
-            //addChecker(sprite);
             transferChecker(selectedTower, sprite);
             sprite.text.fill = selectedTower.text.fill;
-            //removeChecker(selectedTower);
             moveTroop(selectedTower, sprite);
+            selectedTower.pointer.animations.play('go');
             selectedTower = null;
             actionTaken();
           }
@@ -140,6 +141,7 @@ function selectTower(sprite, pointer) {
         else if(sprite.text.fill == currentPlayer){
         selectedTower = sprite;
         updateSideBar();
+        selectedTower.pointer.animations.stop(null, true);
         }
         else {
           wrongSound.play();
@@ -219,7 +221,6 @@ function makeTowers() {
   {
     var tower = towerGroup.create(i + 20, game.world.height - 95, 'wallTexture');
     tower.checkers = [10, 10, 10, 10, 10];
-    console.log(tower.checkers.length);
     tower.inputEnabled = true;
     tower.events.onInputDown.add(selectTower, this);
     tower.flagMap = null;
@@ -305,6 +306,11 @@ function create() {
   leftKey.onDown.add(function() {
                 if(cursorPos > 0)
                     cursorPos -= 1; switchOnPointers();});
+
+  var spaceKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+  spaceKey.onDown.add(function() {
+                selectTower(towerGroup.children[cursorPos], null);
+  }, this, true);
 
   game.world.setBounds(0, 0, 800, 800);
 
