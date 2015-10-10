@@ -7,6 +7,7 @@ var towerGroup, soldierGroup;
 var diceRoll;
 
 var selectedTower = null;
+var cursorPos = 1;
 
 var jail = {"#ffffff": {checkers: 0}, "#FF0000": {checkers: 0}};
 
@@ -34,11 +35,18 @@ function actionTaken() {
       actionsTaken++;
       toggleIcons(false);
       if(actionsTaken >= 2) {
-        currentPlayer = (currentPlayer == player2) ? player1 : player2;
         actionsTaken = 0;
         turnNumber += 1;
-        playerColor = (currentPlayer == player2) ? 'Red' : 'White';
-        flavorText.setText("Day " + turnNumber + ", " + playerColor + " moves out");
+        if(currentPlayer == player2){
+          currentPlayer = player1;
+          flavorText.setText("Day " + turnNumber + ", White moves out");
+          cursorPos = 1;
+        }
+        else {
+          currentPlayer = player2;
+          flavorText.setText("Day " + turnNumber + ", Red moves out");
+          cursorPos = 0;
+        }
         towerGroup.forEach(function(child){
           checkers = child.checkers;
           for(var i = 0; i < checkers.length; i++){
@@ -55,17 +63,10 @@ function actionTaken() {
 }
 
 function switchOnPointers() {
-    towerGroup.forEach(
-        function(child) {
-          if(child.text.fill == currentPlayer){
-            child.pointer.visible = true;
-          }
-          else {
-            child.pointer.visible = false;
-          }
-        },
-                    this, true);
-
+    towerGroup.forEach(function(child) {
+      child.pointer.visible = false;
+    }, this, true);
+    towerGroup.children[cursorPos].pointer.visible = true;
 }
 
 function toggleIcons(status) {
@@ -138,7 +139,6 @@ function selectTower(sprite, pointer) {
         }
         else if(sprite.text.fill == currentPlayer){
         selectedTower = sprite;
-        selectTowerPointer();
         updateSideBar();
         }
         else {
@@ -215,9 +215,9 @@ function updateSideBar(){
 function makeTowers() {
   towerGroup = game.add.group();
 
-  for(var i = 0; i < 1500; i += 150)
+  for(var i = 0; i < 600; i += 100)
   {
-    var tower = towerGroup.create(i + 50, game.world.height - 95, 'wallTexture');
+    var tower = towerGroup.create(i + 20, game.world.height - 95, 'wallTexture');
     tower.checkers = [10, 10, 10, 10, 10];
     console.log(tower.checkers.length);
     tower.inputEnabled = true;
@@ -286,6 +286,7 @@ function create() {
     child.pointer = game.add.sprite(child.x + 20, child.y - (70 + (child.checkers.length * 16)), pointerColor);
     child.pointer.animations.add('go', null, 15, true);
     child.pointer.animations.play('go');
+    child.pointer.visible = false;
     child.icon = game.add.sprite(child.x + 20, child.y - (50 + (child.checkers.length * 16)), 'addSoldierIcon');
     child.icon.visible = false;
   }, this, true);
@@ -295,9 +296,17 @@ function create() {
   soldierGroup = game.add.group();
   soldierGroup.enableBody = true;
 
-  cursors = game.input.keyboard.createCursorKeys();
+  var rightKey = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
+  rightKey.onDown.add(function() {
+                if(cursorPos < towerGroup.length - 1)
+                      cursorPos += 1; switchOnPointers();});
 
-  game.world.setBounds(0, 0, 1600, 1600);
+  var leftKey = game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
+  leftKey.onDown.add(function() {
+                if(cursorPos > 0)
+                    cursorPos -= 1; switchOnPointers();});
+
+  game.world.setBounds(0, 0, 800, 800);
 
   turnNumber = 1;
 
@@ -317,16 +326,7 @@ function update() {
         (child.body.velocity.x < 0 && child.targetX > child.body.x)) {
         child.destroy();}}
                         , this, true);
-
-
-  if(cursors.right.isDown) {
-    game.camera.x += 10;
   }
-  else if(cursors.left.isDown) {
-    game.camera.x -= 10;
-  }
-  flavorText.x = game.camera.x + 350;
-}
 
 game.state.add('p1Wins', {
       preload: function() {},
