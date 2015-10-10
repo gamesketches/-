@@ -40,6 +40,7 @@ function actionTaken() {
           flavorText.setText("Day " + turnNumber + ", Red moves out");
           cursorPos = 0;
         }
+        // Inflict hunger on the masses
         towerGroup.forEach(function(child){
           checkers = child.checkers;
           for(var i = 0; i < checkers.length; i++){
@@ -104,7 +105,7 @@ function selectTower(sprite, pointer) {
         if(sprite.text.fill == selectedTower.text.fill){
             transferChecker(selectedTower, sprite);
             sprite.text.fill = selectedTower.text.fill;
-            moveTroop(selectedTower, sprite);
+            moveTroop(selectedTower, sprite, 0);
             selectedTower.pointer.animations.play('go');
             selectedTower = null;
             actionTaken();
@@ -113,8 +114,8 @@ function selectTower(sprite, pointer) {
       // Select a tower if it has checkers
       else if(sprite.checkers.length > 0){
         // If attempting to bear off your troops
-        if((towerGroup.children[0] == sprite && currentPlayer == player1) ||
-              towerGroup.children[towerGroup.children.length - 1] == sprite && currentPlayer == player2){
+        if((towerGroup.children[0] == sprite && currentPlayer == player2) ||
+              towerGroup.children[towerGroup.children.length - 1] == sprite && currentPlayer == player1){
             bearOff(sprite);
             actionTaken();
         }
@@ -141,13 +142,19 @@ function bearOff(sprite){
     }
 }
 
-function moveTroop(startTower, targetTower) {
+function moveTroop(startTower, targetTower, yCorrection) {
   var soldier = soldierGroup.create(startTower.x,
-    startTower.y + 64, 'soldier');
+    startTower.y + 64 - yCorrection, 'soldier');
   soldier.animations.add('run', null, 15, true);
   soldier.animations.play('run');
   soldier.targetX = targetTower.x;
   soldier.body.velocity.x = (targetTower.x - startTower.x) / 2;
+}
+
+function chargeAnimation(startTower, targetTower) {
+  for(var i = 0; i < startTower.checkers.length; i++){
+    moveTroop(startTower, targetTower, i * 21);
+  }
 }
 
 function makeGrass() {
@@ -288,6 +295,17 @@ function create() {
   spaceKey.onDown.add(function() {
                 selectTower(towerGroup.children[cursorPos], null);
   }, this, true);
+
+  var cKey = game.input.keyboard.addKey(Phaser.Keyboard.C);
+  cKey.onDown.add(function() {
+                if(selectedTower && selectedTower != towerGroup.children[cursorPos]){
+                  chargeAnimation(selectedTower, towerGroup.children[cursorPos]);
+                  //towerAttack();
+                  actionTaken();
+                  selectedTower = null;
+                  switchOnPointers();
+                }
+  })
 
   game.world.setBounds(0, 0, 800, 500);
 
