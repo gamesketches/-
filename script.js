@@ -157,6 +157,46 @@ function chargeAnimation(startTower, targetTower) {
   }
 }
 
+function resolveTowerAttack(startTower, targetTower) {
+  // Here's the actual battle loop
+  for(var i = 0, k = 0; i < startTower.checkers.length &&
+                        k < targetTower.checkers.length;) {
+                  if(startTower.checkers[i] > targetTower.checkers[k]) {
+                    startTower.checkers[i] -= targetTower.checkers[k];
+                    k++;
+                  }
+                  else {
+                    targetTower.checkers[k] -= startTower.checkers[i];
+                    i++;
+                  }
+              }
+  // Now we tallly up the winner
+  var attackSum = 0;
+  for(var i = 0; i < startTower.checkers.length; i++){
+    if(startTower.checkers[i] < 0) {
+      startTower.checkers.shift();
+      i--;
+      continue;
+    }
+    attackSum += startTower.checkers[i];
+  }
+  var defenseSum = 0;
+  for(var i = 0; i < targetTower.checkers.length; i++){
+    if(targetTower.checkers[i] < 0) {
+      targetTower.checkers.shift();
+      i--;
+      continue;
+    }
+    defenseSum += targetTower.checkers[i];
+  }
+
+  if(attackSum > defenseSum) {
+    targetTower.checkers = startTower.checkers;
+    targetTower.text.fill = startTower.text.fill;
+  }
+  startTower.checkers = [];
+}
+
 function makeGrass() {
   var grassTiles = [];
   var ground = game.add.bitmapData(1600, 32);
@@ -300,7 +340,7 @@ function create() {
   cKey.onDown.add(function() {
                 if(selectedTower && selectedTower != towerGroup.children[cursorPos]){
                   chargeAnimation(selectedTower, towerGroup.children[cursorPos]);
-                  //towerAttack();
+                  resolveTowerAttack(selectedTower, towerGroup.children[cursorPos]);
                   actionTaken();
                   selectedTower = null;
                   switchOnPointers();
