@@ -236,7 +236,7 @@ function makeSideBar() {
   sideBar.fill(0, 0, 0);
 
   speechBubble = game.add.sprite(game.world.width - 150, 400, 'speechBubble');
-  speechBubble.textContent = game.add.text(speechBubble.x + 10, speechBubble.y + 40, "Select a Tower",
+  speechBubble.textContent = game.add.text(speechBubble.x + 10, speechBubble.y + 25, "Welcome back Player1!",
                                               { font: "10px Arial", fill: "black", align: "center" });
   speechBubble.buddy = game.add.sprite(speechBubble.x, speechBubble.y - 10, "standingSoldier");
 
@@ -252,6 +252,27 @@ function updateSideBar(){
   for(var i = 0; i < highlightedTower.checkers.length; i++){
     sideBar.copyRect('standingSoldier', area, 20, i * 25);
     sideBar.rect(40, i * 25, highlightedTower.checkers[i] * 10, 21, "#FF99FF");
+  }
+  // helper text for player's towers
+  if(highlightedTower.owner == currentPlayer) {
+    if(selectedTower == null) {
+      speechBubble.textContent.setText("Select this tower \nwith SPACE");
+    }
+    else if(highlightedTower == selectedTower) {
+      speechBubble.textContent.setText("Add a soldier \nwith SPACE");
+    }
+    else {
+      speechBubble.textContent.setText("Transfer a soldier \nfrom selectedTower");
+    }
+  }
+  // helper text for opponent's towers
+  else {
+    if(selectedTower == null) {
+      speechBubble.textContent.setText("Opponent's tower, \ncan't be selected");
+    }
+    else{
+      speechBubble.textContent.setText("Attempt a charge \nwith C button");
+    }
   }
 }
 
@@ -373,6 +394,7 @@ function create() {
                   actionTaken();
                   selectedTower = null;
                   switchOnPointers();
+                  updateSideBar();
                 }
                 else {
                   wrongSound.play();
