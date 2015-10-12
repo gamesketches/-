@@ -21,7 +21,7 @@ var sideBar, speechBubble;
 var wrongSound;
 
 // I feel mad sneaky about this
-var remainingCheckers = {"#ffffff": 0, "#FF0000": 0}
+var scoredCheckers = {"#ffffff": 0, "#FF0000": 0}
 
 function actionTaken() {
       // Record an action taken, switch players if currentPlayer has taken 2 actions
@@ -141,11 +141,32 @@ function selectTower(sprite, pointer) {
 
 function bearOff(sprite){
     removeChecker(sprite);
-    remainingCheckers[currentPlayer] -= 1;
-    if(remainingCheckers[currentPlayer] == 0)
+    scoredCheckers[currentPlayer] += 1;
+    if(scoredCheckers[currentPlayer] == 0)
     {
       currentPlayer == player1 ? game.state.start('p1Wins') : game.state.start('p2Wins');
     }
+    if(sprite.checkers.length <= 0) {
+      // Check if this player has any more actions available to them
+      for(var i = 0; i < towerGroup.length; i++) {
+        if(towerGroup.children[i].owner == currentPlayer && towerGroup.children[i].length > 0) {
+          return;
+        }
+      }
+      // This code scores the enemy checkers
+      var totalEnemyCheckers = currentPlayer == player1 ? scoredCheckers[player2] : scoredCheckers[player1];
+      for(var i = 0; i < towerGroup.length; i++) {
+        if(towerGroup.children[i].owner != currentPlayer) {
+          totalEnemyCheckers += towerGroup.children[i].checkers.length;
+        }
+      }
+      if(scoredCheckers[currentPlayer] > totalEnemyCheckers) {
+        currentPlayer == player1 ? game.state.start('p1Wins') : game.state.start('p2Wins');
+      }
+      else {
+        currentPlayer != player1 ? game.state.start('p1Wins') : game.state.start('p2Wins');
+      }
+  }
 }
 
 function moveTroop(startTower, targetTower, yCorrection) {
@@ -277,11 +298,11 @@ function makeTowers() {
     var tower = towerGroup.children[i];
     if(i % 2){
     tower.owner = player1;
-    remainingCheckers[player1] += tower.checkers.length;
+    scoredCheckers[player1] += tower.checkers.length;
     }
     else {
       tower.owner = player2;
-      remainingCheckers[player2] += tower.checkers.length;
+      scoredCheckers[player2] += tower.checkers.length;
     }
     drawFlags(tower);
   }
