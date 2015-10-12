@@ -102,7 +102,13 @@ function transferChecker(giver, receiver) {
 function selectTower(sprite, pointer) {
       // Move checkers from one tower to another
       if(selectedTower != null){
-        if(sprite.owner == selectedTower.owner){
+        if(sprite == selectedTower){
+          selectedTower.checkers.push(Math.random() * 10);
+          selectedTower.pointer.animations.play('go');
+          selectedTower = null;
+          actionTaken();
+        }
+        else if(sprite.owner == selectedTower.owner){
             transferChecker(selectedTower, sprite);
             sprite.owner = selectedTower.owner;
             moveTroop(selectedTower, sprite, 0);
@@ -249,7 +255,11 @@ function makeTowers() {
   for(var i = 0; i < 600; i += 100)
   {
     var tower = towerGroup.create(i + 20, game.world.height - 95, 'wallTexture');
-    tower.checkers = [10, 10, 10, 10, 10];
+    tower.checkers = [];
+    for(var k = 0; k < 5; k++)
+    {
+      tower.checkers.push(Math.random() * 9 + 1);
+    }
     tower.flagMap = null;
   }
   for(var i = 0; i < towerGroup.children.length; i++){
@@ -337,12 +347,16 @@ function create() {
 
   var cKey = game.input.keyboard.addKey(Phaser.Keyboard.C);
   cKey.onDown.add(function() {
-                if(selectedTower && selectedTower != towerGroup.children[cursorPos]){
+                if(selectedTower && selectedTower != towerGroup.children[cursorPos] &&
+                        selectedTower.owner != towerGroup.children[cursorPos].owner){
                   chargeAnimation(selectedTower, towerGroup.children[cursorPos]);
                   resolveTowerAttack(selectedTower, towerGroup.children[cursorPos]);
                   actionTaken();
                   selectedTower = null;
                   switchOnPointers();
+                }
+                else {
+                  wrongSound.play();
                 }
   })
 
