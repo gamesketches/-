@@ -33,7 +33,7 @@ function actionTaken() {
         if(currentPlayer == player2){
           currentPlayer = player1;
           flavorText.setText("Day " + turnNumber + ", White moves out");
-          cursorPos = 1;
+          cursorPos = towerGroup.length - 1;
         }
         else {
           currentPlayer = player2;
@@ -365,13 +365,20 @@ function create() {
   var rightKey = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
   rightKey.onDown.add(function() {
                 if(cursorPos < towerGroup.length - 1)
-                      cursorPos += 1; switchOnPointers();
+                      cursorPos += 1;
+                else {
+                  cursorPos = 0;
+                }
+                switchOnPointers();
                 updateSideBar();});
 
   var leftKey = game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
   leftKey.onDown.add(function() {
                 if(cursorPos > 0)
-                    cursorPos -= 1; switchOnPointers();
+                    cursorPos -= 1;
+                else
+                    cursorPos = towerGroup.length - 1;
+                 switchOnPointers();
                 updateSideBar();});
 
   var spaceKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
