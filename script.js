@@ -43,11 +43,10 @@ function switchPlayerScreen(text) {
 
     //  Create our tween. This will fade the sprite to alpha 1 over the duration of 2 seconds
    var tween = game.add.tween(sprite).to( { alpha: 1 }, 1000, "Linear", true, 0);
-   var tween2 = game.add.tween(sprite).to( {alpha: 0}, 1000, "Linear", true, 3000);
 
    //  And this tells it to yoyo, i.e. fade back to zero again before repeating.
    //  The 3000 tells it to wait for 3 seconds before starting the fade back.
-   tween.chain(tween2);
+   tween.chain(game.add.tween(sprite).from( {alpha: 1}, 1000, "Linear", true, 2000));
 }
 
 function actionTaken() {
@@ -58,12 +57,12 @@ function actionTaken() {
         turnNumber += 1;
         if(currentPlayer == player2){
           currentPlayer = player1;
-          switchPlayerScreen("Day " + turnNumber + ", White moves out");
+          switchPlayerScreen("Day " + turnNumber + ", White moves out\n (Please switch seats)");
           cursorPos = towerGroup.length - 1;
         }
         else {
           currentPlayer = player2;
-          switchPlayerScreen("Day " + turnNumber + ", Red moves out");
+          switchPlayerScreen("Day " + turnNumber + ", Red moves out\n (Please switch seats)");
           cursorPos = 0;
         }
         // Inflict hunger on the masses
