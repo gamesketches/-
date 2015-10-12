@@ -232,10 +232,12 @@ function makeSideBar() {
   speechBubble.textContent = game.add.text(speechBubble.x + 10, speechBubble.y + 40, "Select a Tower",
                                               { font: "10px Arial", fill: "black", align: "center" });
   speechBubble.buddy = game.add.sprite(speechBubble.x, speechBubble.y - 10, "standingSoldier");
+
+  updateSideBar();
 }
 
 function updateSideBar(){
-  if(selectedTower) {
+  /*if(selectedTower) {
     var area = new Phaser.Rectangle(0, 0, 13, 21);
     for(var i = 0; i < selectedTower.checkers.length; i++){
       sideBar.copyRect('standingSoldier', area, 20, i * 25);
@@ -246,6 +248,15 @@ function updateSideBar(){
     sideBar.cls();
     sideBar.update();
     sideBar.fill(0, 0, 0);
+  }*/
+  sideBar.cls();
+  sideBar.update();
+  sideBar.fill(0, 0, 0);
+  var highlightedTower = towerGroup.children[cursorPos];
+  var area = new Phaser.Rectangle(0, 0, 13, 21);
+  for(var i = 0; i < highlightedTower.checkers.length; i++){
+    sideBar.copyRect('standingSoldier', area, 20, i * 25);
+    sideBar.rect(40, i * 25, highlightedTower.checkers[i] * 10, 21, "#FF99FF");
   }
 }
 
@@ -333,12 +344,14 @@ function create() {
   var rightKey = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
   rightKey.onDown.add(function() {
                 if(cursorPos < towerGroup.length - 1)
-                      cursorPos += 1; switchOnPointers();});
+                      cursorPos += 1; switchOnPointers();
+                updateSideBar();});
 
   var leftKey = game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
   leftKey.onDown.add(function() {
                 if(cursorPos > 0)
-                    cursorPos -= 1; switchOnPointers();});
+                    cursorPos -= 1; switchOnPointers();
+                updateSideBar();});
 
   var spaceKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
   spaceKey.onDown.add(function() {
