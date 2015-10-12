@@ -26,7 +26,6 @@ var scoredCheckers = {"#ffffff": 0, "#FF0000": 0}
 function actionTaken() {
       // Record an action taken, switch players if currentPlayer has taken 2 actions
       actionsTaken++;
-      toggleIcons(false);
       if(actionsTaken >= 2) {
         actionsTaken = 0;
         turnNumber += 1;
@@ -58,26 +57,13 @@ function actionTaken() {
 
 function switchOnPointers() {
     towerGroup.forEach(function(child) {
-      child.pointer.visible = false;
+      child.pointers[player1].visible = false;
+      child.pointers[player2].visible = false;
+      child.pointer = child.pointers[currentPlayer];
     }, this, true);
     towerGroup.children[cursorPos].pointer.visible = true;
     if(selectedTower)
       selectedTower.pointer.visible = true;
-}
-
-function toggleIcons(status) {
-  towerGroup.forEach(
-    function(child) {
-      if(child != selectedTower && child.owner == currentPlayer) {
-        child.icon.loadTexture('addSoldierIcon');
-        child.icon.visible = status;
-      }
-      if(child.owner != currentPlayer && child.checkers <= 1) {
-        child.icon.loadTexture('conquerIcon');
-        child.icon.visible = status;
-      }
-    },
-      this, true);
 }
 
 function addChecker(sprite, hungerVal){
@@ -258,18 +244,6 @@ function makeSideBar() {
 }
 
 function updateSideBar(){
-  /*if(selectedTower) {
-    var area = new Phaser.Rectangle(0, 0, 13, 21);
-    for(var i = 0; i < selectedTower.checkers.length; i++){
-      sideBar.copyRect('standingSoldier', area, 20, i * 25);
-      sideBar.rect(40, i * 25, selectedTower.checkers[i] * 10, 21, "#FF99FF");
-    }
-  }
-  else {
-    sideBar.cls();
-    sideBar.update();
-    sideBar.fill(0, 0, 0);
-  }*/
   sideBar.cls();
   sideBar.update();
   sideBar.fill(0, 0, 0);
@@ -308,6 +282,20 @@ function makeTowers() {
   }
 }
 
+function makePointers(child) {
+    child.pointers = {};
+    var whitePointer = game.add.sprite(child.x + 20, child.y - (70 + (child.checkers.length * 16)), 'whitePointer');
+    whitePointer.animations.add('go', null, 15, true);
+    whitePointer.visible = false;
+    var redPointer = game.add.sprite(child.x + 20, child.y - (70 + (child.checkers.length * 16)), 'redPointer');
+    redPointer.animations.add('go', null, 15, true);
+    redPointer.visible = false;
+    child.pointers[player1] = whitePointer;
+    child.pointers[player2] = redPointer;
+    child.pointer = child.pointers[child.owner];
+    child.pointer.animations.play('go');
+  }
+
 function drawFlags(tower) {
   if(tower.flagMap) {
     tower.flagMap.cls();
@@ -328,8 +316,6 @@ function preload() {
   game.load.image('speechBubble', 'assets/speechBubble.png');
   game.load.image('wallTexture', 'assets/wallTexture.png');
   game.load.spritesheet('soldier', 'assets/runningSoldier.png', 13, 21);
-  game.load.image('addSoldierIcon', 'assets/addSoldierIcon.png');
-  game.load.image('conquerIcon', 'assets/conquerIcon.png');
 
   game.load.audio('wrong', 'assets/wrong.wav');
 
@@ -347,15 +333,7 @@ function create() {
 
   makeTowers();
 
-  towerGroup.forEach(function(child) {
-    pointerColor = (child.owner == player1) ? 'whitePointer' : 'redPointer';
-    child.pointer = game.add.sprite(child.x + 20, child.y - (70 + (child.checkers.length * 16)), pointerColor);
-    child.pointer.animations.add('go', null, 15, true);
-    child.pointer.animations.play('go');
-    child.pointer.visible = false;
-    child.icon = game.add.sprite(child.x + 20, child.y - (50 + (child.checkers.length * 16)), 'addSoldierIcon');
-    child.icon.visible = false;
-  }, this, true);
+  towerGroup.forEach(makePointers, this, true);
 
   switchOnPointers();
 
