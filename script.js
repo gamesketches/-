@@ -19,6 +19,7 @@ var turnNumber;
 var sideBar, speechBubble;
 
 var wrongSound;
+var moveSound;
 
 // I feel mad sneaky about this
 var scoredCheckers = {"#ffffff": 0, "#FF0000": 0};
@@ -367,6 +368,7 @@ function preload() {
   game.load.spritesheet('soldier', 'assets/runningSoldier.png', 13, 21);
 
   game.load.audio('wrong', 'assets/wrong.wav');
+  game.load.audio('move', 'assets/blip.wav');
 
   game.load.image('grass', 'assets/grassTiles.png');
   game.load.image('redFlag', 'assets/redFlag.png');
@@ -391,6 +393,7 @@ function create() {
 
   var rightKey = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
   rightKey.onDown.add(function() {
+                moveSound.play();
                 if(cursorPos < towerGroup.length - 1)
                       cursorPos += 1;
                 else {
@@ -401,6 +404,7 @@ function create() {
 
   var leftKey = game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
   leftKey.onDown.add(function() {
+                moveSound.play();
                 if(cursorPos > 0)
                     cursorPos -= 1;
                 else
@@ -434,6 +438,7 @@ function create() {
   turnNumber = 1;
 
   wrongSound = game.add.audio('wrong');
+  moveSound = game.add.audio('move');
 
   makeSideBar();
 
