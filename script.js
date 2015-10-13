@@ -308,9 +308,21 @@ function updateSideBar(){
 function makeTowers() {
   towerGroup = game.add.group();
 
+  var scalar = 1.5;
+  var deltaY = 10;
   for(var i = 0; i < 600; i += 100)
   {
-    var tower = towerGroup.create(i + 20, game.world.height - 95, 'wallTexture');
+    if(i <= 200) {
+      scalar -= 0.3;
+      deltaY += 15;
+      deltaY *= 1.5
+    }
+    else if(i >= 400){
+      scalar += 0.3;
+      deltaY *= 0.5;
+    }
+    var tower = towerGroup.create(i + 20, game.world.height - (150 + deltaY), 'wallTexture');
+    tower.scale.setTo(scalar, scalar);
     tower.checkers = [];
     for(var k = 0; k < 5; k++)
     {
@@ -364,7 +376,7 @@ function drawFlags(tower) {
 function preload() {
   game.load.image('standingSoldier', 'assets/soldier.png');
   game.load.image('speechBubble', 'assets/speechBubble.png');
-  game.load.image('wallTexture', 'assets/wallTexture.png');
+  game.load.image('wallTexture', 'assets/towerSprite.png');
   game.load.spritesheet('soldier', 'assets/runningSoldier.png', 13, 21);
 
   game.load.audio('wrong', 'assets/wrong.wav');
