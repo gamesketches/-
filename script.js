@@ -5,7 +5,7 @@ var game = new Phaser.Game(800, 500, Phaser.AUTO, '', {preload: preload,
 var towerGroup, soldierGroup;
 
 var selectedTower = null;
-var cursorPos = 1;
+var cursorPos = 0;
 
 var currentPlayer = "#ffffff";
 var actionsTaken = 0;
@@ -21,7 +21,7 @@ var sideBar, speechBubble;
 var wrongSound;
 
 // I feel mad sneaky about this
-var scoredCheckers = {"#ffffff": 0, "#FF0000": 0}
+var scoredCheckers = {"#ffffff": 0, "#FF0000": 0};
 
 function switchPlayerScreen(text) {
     var bmd = game.add.bitmapData(game.world.width, game.world.height);
@@ -262,8 +262,8 @@ function makeSideBar() {
   sideBar.fill(0, 0, 0);
 
   speechBubble = game.add.sprite(game.world.width - 150, 400, 'speechBubble');
-  speechBubble.textContent = game.add.text(speechBubble.x + 10, speechBubble.y + 25, "Welcome back Player1!",
-                                              { font: "10px Arial", fill: "black", align: "center" });
+  speechBubble.textContent = game.add.text(speechBubble.x + 5, speechBubble.y + 25, "Welcome back Player1!",
+                                              { font: "bold 10px Arial", fill: "black", align: "center" });
   speechBubble.buddy = game.add.sprite(speechBubble.x, speechBubble.y - 10, "standingSoldier");
 
   updateSideBar();
@@ -450,10 +450,7 @@ game.state.add('p1Wins', {
       preload: function() {},
       create: function (){
               game.add.text(400, 300, 'Player 1 Wins', { fontSize: '32px', fill: '#FFF' });
-              player1.rounds += 1;
-              if(player1.rounds < 2){
-              game.time.events.add(Phaser.Timer.SECOND * 2, function() {game.state.start('fight')}, this);
-              }
+              game.time.events.add(Phaser.Timer.SECOND * 2, function() {game.state.start('titleScreen')}, this);
             },
       update: function() {}
     });
@@ -461,10 +458,36 @@ game.state.add('p2Wins', {
   preload: function() {},
   create: function (){
           game.add.text(400, 300, 'Player 2 Wins', { fontSize: '32px', fill: '#FFF' });
-          player2.rounds += 1;
-          if(player2.rounds < 2) {
-                game.time.events.add(Phaser.Timer.SECOND * 2, function() { game.state.start('fight')}, this);
-          }
+          game.time.events.add(Phaser.Timer.SECOND * 2, function() { game.state.start('titleScreen')}, this);
         },
   update: function() {}
 });
+
+
+function createTitlePage() {
+  game.stage.backgroundColor = '#000000';
+  var title = game.add.text(game.world.centerX, game.world.centerY,
+                                          'TOWER RUNNERS', {fontSize: '40px', fill: '#FFF'});
+  var copyright = game.add.text(game.world.centerX, game.world.height - 30,
+                                          'NYU GAME CENTER 2015');
+
+  var spaceKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+  spaceKey.onDown.add(function() {
+                game.world.removeAll();
+                if(cursorPos == 0) {
+                  game.add.text(70, 150, 'Tower Runners is a two player strategy game\n Players are commanders of warring factions\ngearing up for an upcoming battle. Your goal\nis to bring more troops home than your opponent\nbut that doesn\'t mean you can\'t or shouldn\'t\ndo some damage to the enemy troops in the meantime.\nThe player with the most troops rescued is the winner.',
+                                {fontSize: '30px', fill: '#FFF'});
+                  cursorPos++;
+                }
+                else {
+                  game.world.removeAll();
+                  game.state.start('mainScreen');
+                }
+  }, this, true);
+}
+
+game.state.add('titleScreen', {preload: function() {}, create: createTitlePage, update: function(){}});
+
+game.state.add('mainScreen', {preload: preload, create: create, update: update});
+
+game.state.start('titleScreen');
