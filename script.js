@@ -119,6 +119,7 @@ function selectTower(sprite, pointer) {
           selectedTower.pointer.animations.play('go');
           selectedTower = null;
           actionTaken();
+          updateSideBar();
         }
         else if(sprite.owner == selectedTower.owner){
             transferChecker(selectedTower, sprite);
@@ -127,6 +128,7 @@ function selectTower(sprite, pointer) {
             selectedTower.pointer.animations.play('go');
             selectedTower = null;
             actionTaken();
+            updateSideBar();
           }
       }
       // Select a tower if it has checkers
@@ -467,16 +469,23 @@ game.state.add('p2Wins', {
 function createTitlePage() {
   game.stage.backgroundColor = '#000000';
   var title = game.add.text(game.world.centerX, game.world.centerY,
-                                          'TOWER RUNNERS', {fontSize: '40px', fill: '#FFF'});
+                                          'TOWER RUNNERS', {fontSize: 'italic 40px', fill: '#FFF'});
+  title.anchor.set(0.8, 0.8);
+
+  var spaceText = game.add.text(game.world.centerX, game.world.centerY + 130,
+                                          'Space Bar to continue', {fontSize: '30px', fill: '#FFF'});
+  spaceText.anchor.set(0.5, 0.5);
   var copyright = game.add.text(game.world.centerX, game.world.height - 30,
-                                          'NYU GAME CENTER 2015');
+                                          'NYU GAME CENTER 2015', {fontSize: '20px', fill: '#FFF'});
 
   var spaceKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
   spaceKey.onDown.add(function() {
                 game.world.removeAll();
                 if(cursorPos == 0) {
-                  game.add.text(70, 150, 'Tower Runners is a two player strategy game\n Players are commanders of warring factions\ngearing up for an upcoming battle. Your goal\nis to bring more troops home than your opponent\nbut that doesn\'t mean you can\'t or shouldn\'t\ndo some damage to the enemy troops in the meantime.\nThe player with the most troops rescued is the winner.',
+                  game.add.text(70, 100, 'Tower Runners is a two player strategy game\n Players are commanders of warring factions\ngearing up for an upcoming battle. Your goal\nis to bring more troops home than your opponent\nbut that doesn\'t mean you can\'t or shouldn\'t\ndo some damage to the enemy troops in the\n meantime. The player with the most troops\n rescued is the winner.',
                                 {fontSize: '30px', fill: '#FFF'});
+                  game.add.text(game.world.centerX, game.world.height - 30, 'Space Bar to continue',
+                                {fontSize: '20px', fill:'#FFF'});
                   cursorPos++;
                 }
                 else {
