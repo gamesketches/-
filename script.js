@@ -247,24 +247,27 @@ function resolveTowerAttack(startTower, targetTower) {
 
 function makeGrass() {
   var grassTiles = [];
-  var ground = game.add.bitmapData(800, 300);
+  var ground = game.add.bitmapData(800, 800);
   ground.addToWorld(0, game.world.height - 300);
   var grass = game.add.sprite(0, 0, 'grass');
-  //grass.scale.setTo(0.1, 0.1);
 
   grassTiles[0] = new Phaser.Rectangle(0, 0, 32, 32);
   grassTiles[1] = new Phaser.Rectangle(32, 0, 32, 32);
   grassTiles[2] = new Phaser.Rectangle(0, 32, 32, 32);
   grassTiles[3] = new Phaser.Rectangle(32, 32, 32, 32);
-  for(var i = 0; i < 1832; i += 32){
-    //for(var k = 0; k < 1800; k+= 32){
-    var grassNum = Math.floor(Math.random() * 6);
-    if(grassNum >= 4)
-        grassNum = 3;
-    ground.copyRect(grass, grassTiles[grassNum], i, 0);
-  grass.destroy();
-  //}
+  for(var i = 0; i < 832; i += 32){
+    for(var k = 0; k < 832; k+= 32){
+      if(k < 150) {
+        ground.copyRect(grass, grassTiles[3], i, k);
+        continue;
+      }
+      var grassNum = Math.floor(Math.random() * 20);
+      if(grassNum >= 4)
+          grassNum = 3;
+      ground.copyRect(grass, grassTiles[grassNum], i, k);
+  }
 }
+grass.destroy();
 }
 
 function makeSideBar() {
