@@ -190,7 +190,11 @@ function moveTroop(startTower, targetTower, yCorrection) {
   soldier.animations.add('run', null, 15, true);
   soldier.animations.play('run');
   soldier.targetX = targetTower.x;
+  soldier.targetY = targetTower.y;
   soldier.body.velocity.x = (targetTower.x - startTower.x) / 2;
+  soldier.body.velocity.y = (targetTower.y - startTower.y) / 2;
+  soldier.scale.setTo(startTower.scale.x, startTower.scale.y);
+  game.add.tween(soldier.scale).to( { x: targetTower.scale.x, y: targetTower.scale.y }, 1000, "Linear", true, 0);
 }
 
 function chargeAnimation(startTower, targetTower) {
@@ -243,19 +247,24 @@ function resolveTowerAttack(startTower, targetTower) {
 
 function makeGrass() {
   var grassTiles = [];
-  var ground = game.add.bitmapData(1600, 32);
-  ground.addToWorld(0, game.world.height - 32);
+  var ground = game.add.bitmapData(800, 300);
+  ground.addToWorld(0, game.world.height - 300);
+  var grass = game.add.sprite(0, 0, 'grass');
+  //grass.scale.setTo(0.1, 0.1);
 
   grassTiles[0] = new Phaser.Rectangle(0, 0, 32, 32);
   grassTiles[1] = new Phaser.Rectangle(32, 0, 32, 32);
   grassTiles[2] = new Phaser.Rectangle(0, 32, 32, 32);
   grassTiles[3] = new Phaser.Rectangle(32, 32, 32, 32);
-  for(var i = 0; i < 1600; i += 32){
+  for(var i = 0; i < 1832; i += 32){
+    //for(var k = 0; k < 1800; k+= 32){
     var grassNum = Math.floor(Math.random() * 6);
     if(grassNum >= 4)
         grassNum = 3;
-    ground.copyRect('grass', grassTiles[grassNum], i, 0);
-  }
+    ground.copyRect(grass, grassTiles[grassNum], i, 0);
+  grass.destroy();
+  //}
+}
 }
 
 function makeSideBar() {
